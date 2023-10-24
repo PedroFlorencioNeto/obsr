@@ -4,17 +4,15 @@ from shapely.wkt import loads
 from shapely.geometry import MultiPolygon
 
 # lendo e adequando os dados
-df = pd.read_csv('data/2023_DiasColetasParcial.csv', 
-                 sep=';', 
-                 dtype={'Circuito':'category',
-                        'Frequencia': str,
-                         'Nome':str,
-                         'PolygonZ':str})
+df = pd.read_excel('data/2023_DiasColetasParcial.xls')
+
+# resolvendo problema dos acentos
+#df['coluna_com_problema'] = df['coluna_com_problema'].str.encode('latin-1').str.decode('utf-8')
 
 # renomeando a label das colunas
 df.rename(columns={'Circuito':'CO_CIRCUITO',
-                   'Frequencia':'FREQUENCIA',
-                   'Nome':'NOME',
+                   'Frequência':'FREQUENCIA',
+                   'Observação':'NOME',
                    'PolygonZ':'GEOMETRY'}, inplace=True)
 
 # removendo a setorizacao com geometria dos poligonos ausentes
@@ -37,7 +35,7 @@ gdf = gpd.GeoDataFrame(df, geometry='GEOMETRY')
 gdf['GEOMETRY'] = gdf['GEOMETRY'].apply(lambda geom: MultiPolygon([geom]))
 
 # exportando para GeoJSON
-gdf.to_file('ColetaDomiciliarSetorizacao.geojson', driver='GeoJSON', crs='EPSG:4326')
+gdf.to_file('ColetaDomiciliarSetorizacao.geojson', driver='GeoJSON', crs='EPSG:4326', encoding='utf-8')
 
 #debug
 gdf.to_csv('DEBUG_ColetaDomiciliarSetorizacao.csv', index=False, encoding='utf-8')
